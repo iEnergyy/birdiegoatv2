@@ -17,7 +17,6 @@ interface MainNavProps {
 
 export function MainNav({ items, children }: MainNavProps) {
   const segment = usePathname();
-  console.log(`Currently on -${segment}- page`);
   const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
 
   return (
