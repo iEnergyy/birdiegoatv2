@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model allowed_banks {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar
+  payroll payroll[]
+}
+
+model class_days {
+  id        Int         @id @default(autoincrement())
+  name      String      @db.VarChar
+  schedules schedules[]
+}
+
+model class_schedules {
+  class_id    Int
+  schedule_id Int
+  classes     classes   @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  schedules   schedules @relation(fields: [schedule_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([class_id, schedule_id])
+}
+
+model class_statuses {
+  id      Int       @id @default(autoincrement())
+  status  String    @db.VarChar
+  classes classes[]
+}
+
+model classes {
+  id              Int               @id @default(autoincrement())
+  type            String?           @db.VarChar
+  teacher_id      String?           @db.VarChar
+  classroom_id    Int?
+  description     String?           @db.VarChar
+  initial_date    DateTime          @db.Date
+  end_date        DateTime?         @db.Date
+  class_status_id Int
+  class_schedules class_schedules[]
+  class_statuses  class_statuses    @relation(fields: [class_status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  classrooms      classrooms?       @relation(fields: [classroom_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teachers        teachers?         @relation(fields: [teacher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  student_classes student_classes[]
+}
+
+model classrooms {
+  id       Int       @id @default(autoincrement())
+  name     String?   @db.VarChar
+  capacity Int?
+  classes  classes[]
+}
+
+model payroll {
+  teacher_id          String        @id @db.VarChar
+  bank_id             Int
+  bank_account_number String        @db.VarChar
+  bank_account_type   String        @db.VarChar
+  allowed_banks       allowed_banks @relation(fields: [bank_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teachers            teachers      @relation(fields: [teacher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model schedules {
+  id              Int               @id @default(autoincrement())
+  days_id         Int
+  starts_at       DateTime          @db.Time(6)
+  ends_at         DateTime          @db.Time(6)
+  class_schedules class_schedules[]
+  class_days      class_days        @relation(fields: [days_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model student_classes {
+  student_id String   @db.VarChar
+  class_id   Int
+  classes    classes  @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  students   students @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([student_id, class_id])
+}
+
+model students {
+  id                    String            @id @db.VarChar
+  email                 String?           @db.VarChar
+  first_name            String?           @db.VarChar
+  last_name             String?           @db.VarChar
+  identification_number String?           @unique @db.VarChar(13)
+  mobile_number         String?           @db.VarChar(15)
+  date_of_join          DateTime          @db.Date
+  is_active             Boolean
+  alias                 String?           @db.VarChar
+  date_of_birthday      DateTime          @db.Date
+  has_medical_condition Boolean
+  student_classes       student_classes[]
+}
+
+model teachers {
+  id                    String    @id @db.VarChar
+  email                 String?   @db.VarChar
+  first_name            String?   @db.VarChar
+  last_name             String?   @db.VarChar
+  identification_number String?   @unique @db.VarChar(13)
+  mobile_number         String?   @db.VarChar(15)
+  date_of_join          DateTime  @db.Date
+  is_active             Boolean
+  alias                 String?   @db.VarChar
+  date_of_birthday      DateTime  @db.Date
+  has_medical_condition Boolean
+  classes               classes[]
+  payroll               payroll?
+}
