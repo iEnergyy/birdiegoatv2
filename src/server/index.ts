@@ -1,8 +1,11 @@
+import { PrismaClient, students } from '@prisma/client';
 import { publicProcedure, router } from './trpc';
+const prisma = new PrismaClient();
 
 export const appRouter = router({
   getStudents: publicProcedure.query(async () => {
-    return [10, 20, 30];
+    const students = await prisma.students.findMany();
+    return students;
   }),
 });
 
