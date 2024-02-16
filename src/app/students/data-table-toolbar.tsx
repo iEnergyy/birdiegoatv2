@@ -19,7 +19,7 @@ interface DataTableToolbarProps<TData> {
 
 export function DataTableToolbar<TData>({
   table,
-}: DataTableToolbarProps<TData>) {
+}: Readonly<DataTableToolbarProps<TData>>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
@@ -29,7 +29,9 @@ export function DataTableToolbar<TData>({
         <Input
           placeholder="Filter students..."
           value={
-            (table.getColumn('first_name')?.getFilterValue() as string) ?? ''
+            ((table.getColumn('first_name')?.getFilterValue() as string) ??
+              '') ||
+            ((table.getColumn('last_name')?.getFilterValue() as string) ?? '')
           }
           onChange={(event) =>
             table.getColumn('first_name')?.setFilterValue(event.target.value)
@@ -42,12 +44,12 @@ export function DataTableToolbar<TData>({
             title="Status"
             options={[
               {
-                value: 'true',
+                value: true,
                 label: 'Active',
                 icon: CheckCircledIcon,
               },
               {
-                value: 'false',
+                value: false,
                 label: 'Inactive',
                 icon: CrossCircledIcon,
               },
