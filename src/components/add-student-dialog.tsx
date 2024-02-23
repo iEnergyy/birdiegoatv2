@@ -64,19 +64,9 @@ const studentFormSchema = z.object({
   date_of_join: z.coerce.date({ required_error: 'Please add a date of join.' }),
   has_medical_conditions: z.boolean(),
 });
-// .refine(
-//   (data) => {
-//     // Custom validator: Check if all fields are non-empty
-//     return Object.values(data).every((value) => value !== '');
-//   },
-//   {
-//     message: 'All fields must be filled.',
-//   },
-// );
 
 type StudentFormValues = z.infer<typeof studentFormSchema>;
 
-// This can come from your database or API.
 const defaultValues: Partial<StudentFormValues> = {
   alias: '',
   date_of_join: new Date(),
@@ -84,29 +74,26 @@ const defaultValues: Partial<StudentFormValues> = {
 };
 
 export function AddStudentDialog() {
-  function handleCancel() {
-    form.reset();
-  }
-
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
     defaultValues,
     mode: 'onChange',
   });
 
-  const { formState } = form; // Destructure formState from the useForm hook
-  const isFormEmpty = Object.values(formState.dirtyFields).every(
-    (isDirty) => !isDirty,
-  );
+  const { formState } = form;
 
-  async function onSubmit(data: StudentFormValues) {
+  function handleCancel() {
+    form.reset();
+  }
+
+  function onSubmit(data: StudentFormValues) {
     form.reset();
     console.log(data);
   }
 
   return (
     <Form {...form}>
-      <Dialog>
+      <Dialog onOpenChange={handleCancel}>
         <DialogTrigger asChild>
           <Button variant="outline">Add Student</Button>
         </DialogTrigger>
