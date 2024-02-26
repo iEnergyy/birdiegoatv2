@@ -4,15 +4,12 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { DatePicker } from '@/components/date-picker';
 import { Switch } from '@/components/ui/switch';
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
@@ -36,27 +33,22 @@ const studentFormSchema = z.object({
   first_name: z.string({ required_error: 'Please add a first name.' }),
   last_name: z.string({ required_error: 'Please add a last name.' }),
   email: z.string({ required_error: 'Please add an email.' }).email(),
-  identification_number: z.coerce
-    .number({ required_error: 'Please add a valid identification number' })
-    .refine(
-      (value) => {
-        const stringValue = String(value);
-        return stringValue.length === 11 && /^\d+$/.test(stringValue);
-      },
-      {
-        message: 'Identification number must be a number with 11 digits.',
-      },
-    ),
-
-  mobile_number: z.coerce.number().refine(
-    (value) => {
-      const stringValue = String(value);
-      return stringValue.length === 10 && /^\d+$/.test(stringValue);
-    },
-    {
-      message: 'Mobile number must be a number with 10 digits.',
-    },
-  ),
+  identification_number: z
+    .string({
+      required_error: 'Please add a valid identification number',
+    })
+    .length(11)
+    .refine((data) => /^\d+$/.test(data), {
+      message: 'Must contain only numbers',
+    }),
+  mobile_number: z
+    .string({
+      required_error: 'Please add a valid phone number',
+    })
+    .length(10)
+    .refine((data) => /^\d+$/.test(data), {
+      message: 'Must contain only numbers',
+    }),
   alias: z.string().optional().or(z.literal('')),
   date_of_birth: z.coerce.date({
     required_error: 'Please add a date of birth.',
@@ -68,7 +60,13 @@ const studentFormSchema = z.object({
 type StudentFormValues = z.infer<typeof studentFormSchema>;
 
 const defaultValues: Partial<StudentFormValues> = {
+  first_name: '',
+  last_name: '',
+  email: '',
+  identification_number: '',
+  mobile_number: '',
   alias: '',
+  // date_of_birth: '',
   date_of_join: new Date(),
   has_medical_conditions: false,
 };
@@ -87,22 +85,26 @@ export function AddStudentDialog() {
   }
 
   function onSubmit(data: StudentFormValues) {
-    form.reset();
-    console.log(data);
+    try {
+      console.log('submitted:', data);
+      form.reset();
+    } catch (e) {
+      console.log('error from onSubmit:', e);
+    }
   }
 
   return (
     <Form {...form}>
-      <Dialog onOpenChange={handleCancel}>
+      <Dialog>
         <DialogTrigger asChild>
           <Button variant="outline">Add Student</Button>
         </DialogTrigger>
         <ScrollArea>
           <DialogContent className="sm:max-w-[425px] overflow-y-scroll max-h-screen">
+            <DialogHeader>
+              <DialogTitle>Add Student</DialogTitle>
+            </DialogHeader>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <DialogHeader>
-                <DialogTitle>Add Student</DialogTitle>
-              </DialogHeader>
               <div className="grid gap-4 py-4">
                 <FormField
                   control={form.control}
