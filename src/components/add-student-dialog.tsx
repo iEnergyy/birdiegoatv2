@@ -28,6 +28,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
+import { useToast } from '@/components/ui/use-toast';
 
 const studentFormSchema = z.object({
   first_name: z.string({ required_error: 'Please add a first name.' }),
@@ -72,6 +73,8 @@ const defaultValues: Partial<StudentFormValues> = {
 };
 
 export function AddStudentDialog() {
+  const { toast } = useToast();
+
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
     defaultValues,
@@ -87,6 +90,14 @@ export function AddStudentDialog() {
   function onSubmit(data: StudentFormValues) {
     try {
       console.log('submitted:', data);
+      toast({
+        title: 'You submitted the following values:',
+        description: (
+          <div className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+          </div>
+        ),
+      });
       form.reset();
     } catch (e) {
       console.log('error from onSubmit:', e);
