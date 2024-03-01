@@ -17,7 +17,7 @@ export default async function Students() {
           <h1 className="text-lg font-medium">Students</h1>
           <AddStudentDialog></AddStudentDialog>
         </div>
-        <DataTable columns={columns} data={students} />
+        <DataTable columns={columns} data={students.result} />
       </main>
     </div>
   );

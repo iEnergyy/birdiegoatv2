@@ -11,8 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import * as z from 'zod';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -29,51 +28,35 @@ import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
-
-const studentFormSchema = z.object({
-  first_name: z.string({ required_error: 'Please add a first name.' }),
-  last_name: z.string({ required_error: 'Please add a last name.' }),
-  email: z.string({ required_error: 'Please add an email.' }).email(),
-  identification_number: z
-    .string({
-      required_error: 'Please add a valid identification number',
-    })
-    .length(11)
-    .refine((data) => /^\d+$/.test(data), {
-      message: 'Must contain only numbers',
-    }),
-  mobile_number: z
-    .string({
-      required_error: 'Please add a valid phone number',
-    })
-    .length(10)
-    .refine((data) => /^\d+$/.test(data), {
-      message: 'Must contain only numbers',
-    }),
-  alias: z.string().optional().or(z.literal('')),
-  date_of_birth: z.coerce.date({
-    required_error: 'Please add a date of birth.',
-  }),
-  date_of_join: z.coerce.date({ required_error: 'Please add a date of join.' }),
-  has_medical_conditions: z.boolean(),
-});
-
-type StudentFormValues = z.infer<typeof studentFormSchema>;
+import {
+  StudentFormValues,
+  studentFormSchema,
+} from '@/server/schema/students.schema';
+import { trpc } from '@/app/_trpc/client';
 
 const defaultValues: Partial<StudentFormValues> = {
+  email: '',
   first_name: '',
   last_name: '',
-  email: '',
   identification_number: '',
   mobile_number: '',
-  alias: '',
-  // date_of_birth: '',
   date_of_join: new Date(),
-  has_medical_conditions: false,
+  is_active: true,
+  alias: '',
+  has_medical_condition: false,
 };
 
 export function AddStudentDialog() {
   const { toast } = useToast();
+  const { mutate: addStudentMutation } = trpc.createStudent.useMutation({
+    onSuccess: () => {
+      console.log('success');
+      // refetch students
+    },
+    onError: (err) => {
+      console.log('error', err);
+    },
+  });
 
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
@@ -83,18 +66,20 @@ export function AddStudentDialog() {
 
   const { formState } = form;
 
-  function handleCancel() {
+  const handleCancel = () => {
     form.reset();
-  }
+  };
 
-  function onSubmit(data: StudentFormValues) {
+  const onSubmit: SubmitHandler<StudentFormValues> = (newStudent) => {
     try {
-      console.log('submitted:', data);
+      const addStudent = addStudentMutation(newStudent);
       toast({
         title: 'You submitted the following values:',
         description: (
           <div className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+            <code className="text-white">
+              {JSON.stringify(newStudent, null, 2)}
+            </code>
           </div>
         ),
       });
@@ -102,7 +87,7 @@ export function AddStudentDialog() {
     } catch (e) {
       console.log('error from onSubmit:', e);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -231,7 +216,7 @@ export function AddStudentDialog() {
                 />
                 <FormField
                   control={form.control}
-                  name="date_of_birth"
+                  name="date_of_birthday"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Date of birth</FormLabel>
@@ -310,7 +295,7 @@ export function AddStudentDialog() {
                 />
                 <FormField
                   control={form.control}
-                  name="has_medical_conditions"
+                  name="has_medical_condition"
                   render={({ field }) => (
                     <FormItem className="space-x-2">
                       <FormLabel>Has medical condition?</FormLabel>
