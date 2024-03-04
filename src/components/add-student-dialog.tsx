@@ -46,12 +46,11 @@ const defaultValues: Partial<StudentFormValues> = {
   has_medical_condition: false,
 };
 
-export function AddStudentDialog() {
+export function AddStudentDialog({ updateStudents }: any) {
   const { toast } = useToast();
   const { mutate: addStudentMutation } = trpc.createStudent.useMutation({
     onSuccess: () => {
-      console.log('success');
-      // refetch students
+      updateStudents.refetch();
     },
     onError: (err) => {
       console.log('error', err);
