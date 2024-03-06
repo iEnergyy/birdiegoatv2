@@ -1,6 +1,7 @@
 import { boolean, string, object, coerce, TypeOf } from 'zod';
 
 export const studentFormSchema = object({
+  id: string().optional(),
   first_name: string({ required_error: 'Please add a first name.' }),
   last_name: string({ required_error: 'Please add a last name.' }),
   email: string({ required_error: 'Please add an email.' }).email(),

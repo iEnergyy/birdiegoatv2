@@ -7,3 +7,10 @@ export const createStudent = async (input: Prisma.studentsCreateInput) => {
 export const getAllStudents = async () => {
   return await prisma.students.findMany();
 };
+export const deleteStudent = async (studentId: string) => {
+  return await prisma.students.delete({
+    where: {
+      id: studentId,
+    },
+  });
+};

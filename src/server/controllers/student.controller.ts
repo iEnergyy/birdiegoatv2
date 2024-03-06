@@ -1,6 +1,10 @@
 import { Prisma } from '@prisma/client';
 import { StudentFormValues } from '../schema/students.schema';
-import { createStudent, getAllStudents } from '../services/student.service';
+import {
+  createStudent,
+  deleteStudent,
+  getAllStudents,
+} from '../services/student.service';
 import { TRPCError } from '@trpc/server';
 
 export const createStudentHandler = async (input: StudentFormValues) => {
@@ -45,6 +49,22 @@ export const getStudentsHandler = async () => {
       status: 200,
       data: 'Returned students',
       result: students,
+    };
+  } catch (err: any) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: err.message,
+    });
+  }
+};
+export const deleteStudentHandler = async (input: string) => {
+  try {
+    const deletedStudent = await deleteStudent(input);
+
+    return {
+      status: 200,
+      data: 'Deleted student',
+      result: deletedStudent,
     };
   } catch (err: any) {
     throw new TRPCError({

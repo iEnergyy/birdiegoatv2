@@ -29,19 +29,49 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
-
-// import { labels } from '../data/data';
-// import { taskSchema } from '../data/schema';
+import { studentFormSchema } from '@/server/schema/students.schema';
+import { useToast } from '@/components/ui/use-toast';
+import { trpc } from '@/app/_trpc/client';
+import { useContext } from 'react';
+import { UpdateStudentsContext } from './students-table';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
-
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  //   const task = taskSchema.parse(row.original);
+  const updateStudentsContext = useContext(UpdateStudentsContext);
+  const student = studentFormSchema.parse(row.original);
+  const { toast } = useToast();
+  const { mutate: deleteStudentMutation } = trpc.deleteStudent.useMutation({
+    onSuccess: () => {
+      updateStudentsContext.handleStudentRefetch();
+      console.log('Student deleted');
+    },
+    onError: (err: any) => {
+      console.log('error', err);
+    },
+  });
 
+  const deleteStudent = () => {
+    try {
+      console.log('Deleting student', student.id);
+      deleteStudentMutation(student.id!);
+      toast({
+        title: 'You submitted the following values:',
+        description: (
+          <div className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+            <code className="text-white">
+              {JSON.stringify(student.id, null, 2)}
+            </code>
+          </div>
+        ),
+      });
+    } catch (e) {
+      console.log('error from onSubmit:', e);
+    }
+  };
   return (
     <AlertDialog>
       <DropdownMenu>
@@ -77,6 +107,7 @@ export function DataTableRowActions<TData>({
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             className={cn(buttonVariants({ variant: 'destructive' }))}
+            onClick={deleteStudent}
           >
             Delete
           </AlertDialogAction>
