@@ -4,6 +4,7 @@ import {
   createStudentHandler,
   deleteStudentHandler,
   getStudentsHandler,
+  updateStudentHandler,
 } from './controllers/student.controller';
 import { z } from 'zod';
 
@@ -15,6 +16,9 @@ export const appRouter = router({
   createStudent: publicProcedure
     .input(studentFormSchema)
     .mutation(({ input }) => createStudentHandler(input)),
+  updateStudent: publicProcedure
+    .input(studentFormSchema)
+    .mutation(({ input }) => updateStudentHandler(input)),
   deleteStudent: publicProcedure
     .input(z.string())
     .mutation(({ input }) => deleteStudentHandler(input)),

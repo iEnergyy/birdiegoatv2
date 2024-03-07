@@ -4,8 +4,11 @@ import { students } from '@prisma/client';
 import { ArrowUpDown } from 'lucide-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { DataTableRowActions } from './data-table-row-actions';
+// import { DataTableRowActions } from './data-table-row-actions';
 import { Checkbox } from '@/components/ui/checkbox';
+import { StudentFormDialog } from '@/components/student-form-dialog';
+import { studentFormSchema } from '@/server/schema/students.schema';
+import { StudentDeleteAlertDialog } from '@/components/student-delete-alert';
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -78,8 +81,23 @@ export const columns: ColumnDef<students>[] = [
       }
     },
   },
+  // {
+  //   id: 'actions',
+  //   cell: ({ row }) => <DataTableRowActions row={row} />,
+  // },
   {
-    id: 'actions',
-    cell: ({ row }) => <DataTableRowActions row={row} />,
+    id: 'edit_user',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <StudentFormDialog
+          editMode={true}
+          studentToEdit={studentFormSchema.parse(row.original)}
+        />
+        <div className="px-2"></div>
+        <StudentDeleteAlertDialog
+          studentToEdit={studentFormSchema.parse(row.original)}
+        />
+      </div>
+    ),
   },
 ];

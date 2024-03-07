@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { Pencil2Icon } from '@radix-ui/react-icons';
 import {
   Dialog,
   DialogClose,
@@ -33,6 +34,13 @@ import {
   studentFormSchema,
 } from '@/server/schema/students.schema';
 import { trpc } from '@/app/_trpc/client';
+import { useContext } from 'react';
+import { UpdateStudentsContext } from '@/app/students/students-table';
+
+export interface StudentFormDialogProps {
+  editMode: boolean;
+  studentToEdit?: StudentFormValues;
+}
 
 const defaultValues: Partial<StudentFormValues> = {
   email: '',
@@ -46,11 +54,25 @@ const defaultValues: Partial<StudentFormValues> = {
   has_medical_condition: false,
 };
 
-export function AddStudentDialog({ updateStudents }: any) {
+export function StudentFormDialog({
+  editMode,
+  studentToEdit,
+}: Readonly<StudentFormDialogProps>) {
+  const updateStudentsContext = useContext(UpdateStudentsContext);
+  const isEditMode = editMode && studentToEdit;
+
   const { toast } = useToast();
   const { mutate: addStudentMutation } = trpc.createStudent.useMutation({
     onSuccess: () => {
-      updateStudents.refetch();
+      updateStudentsContext.handleStudentRefetch();
+    },
+    onError: (err) => {
+      console.log('error', err);
+    },
+  });
+  const { mutate: updateStudentMutation } = trpc.updateStudent.useMutation({
+    onSuccess: () => {
+      updateStudentsContext.handleStudentRefetch();
     },
     onError: (err) => {
       console.log('error', err);
@@ -59,7 +81,7 @@ export function AddStudentDialog({ updateStudents }: any) {
 
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
-    defaultValues,
+    defaultValues: isEditMode ? studentToEdit : defaultValues,
     mode: 'onChange',
   });
 
@@ -69,15 +91,22 @@ export function AddStudentDialog({ updateStudents }: any) {
     form.reset();
   };
 
-  const onSubmit: SubmitHandler<StudentFormValues> = (newStudent) => {
+  const onSubmit: SubmitHandler<StudentFormValues> = (student) => {
     try {
-      const addStudent = addStudentMutation(newStudent);
+      // const addStudent = addStudentMutation(newStudent);
+      if (isEditMode) {
+        // If in edit mode, use edit mutation
+        updateStudentMutation(student);
+      } else {
+        // If not in edit mode, use add mutation
+        addStudentMutation(student);
+      }
       toast({
         title: 'You submitted the following values:',
         description: (
           <div className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
             <code className="text-white">
-              {JSON.stringify(newStudent, null, 2)}
+              {JSON.stringify(student, null, 2)}
             </code>
           </div>
         ),
@@ -92,12 +121,20 @@ export function AddStudentDialog({ updateStudents }: any) {
     <Form {...form}>
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="outline">Add Student</Button>
+          {isEditMode ? (
+            <Button variant="ghost">
+              <Pencil2Icon />
+            </Button>
+          ) : (
+            <Button variant="outline">Add Student</Button>
+          )}
         </DialogTrigger>
         <ScrollArea>
           <DialogContent className="sm:max-w-[425px] overflow-y-scroll max-h-screen">
             <DialogHeader>
-              <DialogTitle>Add Student</DialogTitle>
+              <DialogTitle>
+                {isEditMode ? 'Edit Student' : 'Add Student'}
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="grid gap-4 py-4">
@@ -312,7 +349,7 @@ export function AddStudentDialog({ updateStudents }: any) {
               <DialogFooter>
                 <DialogClose asChild>
                   <Button type="submit" disabled={!formState.isValid}>
-                    Add
+                    {isEditMode ? 'Save' : 'Add'}
                   </Button>
                 </DialogClose>
                 <DialogClose asChild>

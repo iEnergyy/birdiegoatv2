@@ -2,7 +2,7 @@
 import { DataTable } from './data-table';
 import { serverClient } from '../_trpc/serverClient';
 import { columns } from './columns';
-import { AddStudentDialog } from '@/components/add-student-dialog';
+import { StudentFormDialog } from '@/components/student-form-dialog';
 import { trpc } from '../_trpc/client';
 import { createContext } from 'react';
 
@@ -32,9 +32,7 @@ export default function StudentsTable({
       <div className="flex">
         <main className="flex-grow p-6">
           <div className="flex justify-end mb-4">
-            <AddStudentDialog
-              updateStudents={getStudentsQuery}
-            ></AddStudentDialog>
+            <StudentFormDialog editMode={false}></StudentFormDialog>
           </div>
           <DataTable columns={columns} data={getStudentsQuery.data.result} />
         </main>

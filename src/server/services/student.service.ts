@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../utils/prisma';
+import { StudentFormValues } from '../schema/students.schema';
 
 export const createStudent = async (input: Prisma.studentsCreateInput) => {
   return await prisma.students.create({ data: input });
@@ -12,5 +13,11 @@ export const deleteStudent = async (studentId: string) => {
     where: {
       id: studentId,
     },
+  });
+};
+export const updateStudent = async (input: StudentFormValues) => {
+  return await prisma.students.update({
+    where: { id: input.id },
+    data: input,
   });
 };

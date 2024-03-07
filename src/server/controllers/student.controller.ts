@@ -4,6 +4,7 @@ import {
   createStudent,
   deleteStudent,
   getAllStudents,
+  updateStudent,
 } from '../services/student.service';
 import { TRPCError } from '@trpc/server';
 
@@ -38,6 +39,22 @@ export const createStudentHandler = async (input: StudentFormValues) => {
         data: 'Unknown error',
       };
     }
+  }
+};
+
+export const updateStudentHandler = async (input: StudentFormValues) => {
+  try {
+    const updatedStudent = await updateStudent(input);
+    return {
+      status: 200,
+      data: 'Student updated',
+      result: updatedStudent,
+    };
+  } catch (err: any) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: err.message,
+    });
   }
 };
 
