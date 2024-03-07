@@ -1,7 +1,5 @@
 'use client';
 import { LinkBreak1Icon } from '@radix-ui/react-icons';
-import { Row } from '@tanstack/react-table';
-import { Button, buttonVariants } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,14 +12,12 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
-import {
-  StudentFormValues,
-  studentFormSchema,
-} from '@/server/schema/students.schema';
+import { StudentFormValues } from '@/server/schema/students.schema';
 import { useToast } from '@/components/ui/use-toast';
 import { trpc } from '@/app/_trpc/client';
 import { useContext } from 'react';
 import { UpdateStudentsContext } from '@/app/students/students-table';
+import { buttonVariants } from '@/components/ui/button';
 
 export interface StudentDeleteAlertDialogProps {
   studentToEdit: StudentFormValues;
@@ -29,7 +25,7 @@ export interface StudentDeleteAlertDialogProps {
 
 export function StudentDeleteAlertDialog({
   studentToEdit,
-}: StudentDeleteAlertDialogProps) {
+}: Readonly<StudentDeleteAlertDialogProps>) {
   const updateStudentsContext = useContext(UpdateStudentsContext);
   const { toast } = useToast();
   const { mutate: deleteStudentMutation } = trpc.deleteStudent.useMutation({

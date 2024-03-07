@@ -93,12 +93,9 @@ export function StudentFormDialog({
 
   const onSubmit: SubmitHandler<StudentFormValues> = (student) => {
     try {
-      // const addStudent = addStudentMutation(newStudent);
       if (isEditMode) {
-        // If in edit mode, use edit mutation
         updateStudentMutation(student);
       } else {
-        // If not in edit mode, use add mutation
         addStudentMutation(student);
       }
       toast({
@@ -204,7 +201,6 @@ export function StudentFormDialog({
                           placeholder="00100101010"
                           className="col-span-3"
                           maxLength={11}
-                          // type="number"
                           {...field}
                         />
                       </FormControl>
@@ -224,7 +220,6 @@ export function StudentFormDialog({
                           placeholder="8097771010"
                           className="col-span-3"
                           maxLength={10}
-                          // type="number"
                           {...field}
                         />
                       </FormControl>
