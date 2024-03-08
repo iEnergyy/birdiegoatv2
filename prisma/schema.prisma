@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model allowed_banks {
@@ -85,7 +86,7 @@ model student_classes {
 }
 
 model students {
-  id                    String            @id @db.VarChar
+  id                    String            @id @default(dbgenerated("uuid_generate_v4()")) @db.VarChar
   email                 String?           @db.VarChar
   first_name            String?           @db.VarChar
   last_name             String?           @db.VarChar

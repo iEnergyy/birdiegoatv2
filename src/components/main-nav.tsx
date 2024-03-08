@@ -1,6 +1,4 @@
 'use client';
-import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 import Link from 'next/link';
 import { siteConfig } from '../../config/site';
 import { Icons } from './ui/icons';
@@ -15,7 +13,7 @@ interface MainNavProps {
   children?: React.ReactNode;
 }
 
-export function MainNav({ items, children }: MainNavProps) {
+export function MainNav({ items, children }: Readonly<MainNavProps>) {
   const segment = usePathname();
   const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
 
@@ -23,7 +21,7 @@ export function MainNav({ items, children }: MainNavProps) {
     <div className="flex">
       <aside className="sticky top-0 h-screen w-56 bg-gray-100 text-gray-800 p-4 hidden md:block">
         <Link href="/" className="flex items-center mb-4 space-x-1">
-          <Icons.logo />
+          <Icons.Logo />
           <span className="hidden font-bold sm:inline-block">
             {siteConfig.name}
           </span>
@@ -52,7 +50,7 @@ export function MainNav({ items, children }: MainNavProps) {
         className="flex items-center space-x-2 md:hidden"
         onClick={() => setShowMobileMenu(!showMobileMenu)}
       >
-        {showMobileMenu ? <Icons.close /> : <Icons.logo />}
+        {showMobileMenu ? <Icons.Close /> : <Icons.Logo />}
         <span className="font-bold">Menu</span>
       </button>
       {showMobileMenu && items && (
