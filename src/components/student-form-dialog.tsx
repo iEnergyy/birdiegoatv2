@@ -333,6 +333,24 @@ export function StudentFormDialog({
                     </FormItem>
                   )}
                 />
+                {isEditMode && (
+                  <FormField
+                    control={form.control}
+                    name="is_active"
+                    render={({ field }) => (
+                      <FormItem className="space-x-2">
+                        <FormLabel>Status</FormLabel>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
               <DialogFooter>
                 <DialogClose asChild>
