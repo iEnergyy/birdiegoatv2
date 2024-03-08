@@ -28,7 +28,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import {
   StudentFormValues,
   studentFormSchema,
@@ -61,7 +61,6 @@ export function StudentFormDialog({
   const updateStudentsContext = useContext(UpdateStudentsContext);
   const isEditMode = editMode && studentToEdit;
 
-  const { toast } = useToast();
   const { mutate: addStudentMutation } = trpc.createStudent.useMutation({
     onSuccess: () => {
       updateStudentsContext.handleStudentRefetch();
@@ -98,19 +97,13 @@ export function StudentFormDialog({
       } else {
         addStudentMutation(student);
       }
-      toast({
-        title: 'You submitted the following values:',
-        description: (
-          <div className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">
-              {JSON.stringify(student, null, 2)}
-            </code>
-          </div>
-        ),
-      });
+      toast.success(
+        `Student ${student.first_name} ${student.last_name} added successfully`,
+      );
       form.reset();
     } catch (e) {
-      console.log('error from onSubmit:', e);
+      console.error(e);
+      toast.error('An error occurred');
     }
   };
 

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { StudentFormValues } from '@/server/schema/students.schema';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { trpc } from '@/app/_trpc/client';
 import { useContext } from 'react';
 import { UpdateStudentsContext } from '@/app/students/students-table';
@@ -27,7 +27,6 @@ export function StudentDeleteAlertDialog({
   studentToEdit,
 }: Readonly<StudentDeleteAlertDialogProps>) {
   const updateStudentsContext = useContext(UpdateStudentsContext);
-  const { toast } = useToast();
   const { mutate: deleteStudentMutation } = trpc.deleteStudent.useMutation({
     onSuccess: () => {
       updateStudentsContext.handleStudentRefetch();
@@ -42,18 +41,12 @@ export function StudentDeleteAlertDialog({
     try {
       console.log('Deleting student', studentToEdit.id);
       deleteStudentMutation(studentToEdit.id!);
-      toast({
-        title: 'You submitted the following values:',
-        description: (
-          <div className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">
-              {JSON.stringify(studentToEdit.id, null, 2)}
-            </code>
-          </div>
-        ),
-      });
+      toast.info(
+        `Student ${studentToEdit.first_name} ${studentToEdit.last_name} was deleted`,
+      );
     } catch (e) {
-      console.log('error from onSubmit:', e);
+      console.error('error from onSubmit:', e);
+      toast.error('Error deleting student');
     }
   };
   return (
