@@ -5,14 +5,16 @@ import { httpBatchLink } from '@trpc/client';
 import { useState } from 'react';
 import { trpc } from './client';
 import superjson from 'superjson';
+import 'dotenv/config';
 
 export default function Provider({ children }: { children: React.ReactNode }) {
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
   const [queryClient] = useState(() => new QueryClient({}));
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: 'http://localhost:3000/api/trpc',
+          url: `${BASE_URL}/api/trpc`,
           transformer: superjson,
         }),
       ],
